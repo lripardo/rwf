@@ -3,10 +3,12 @@ Description=Ripardo Water Flow Python Service
 After=network.target
 
 [Service]
+Type=forking
 User=pi
 Restart=always
-ExecStart=/home/pi/rwf/rwf.py
-EnvironmentFile=/home/pi/rwf.env
+WorkingDirectory=/home/pi/rwf
+ExecStart=start_service.sh
+EnvironmentFile=../rwf.env
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=rwf
