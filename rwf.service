@@ -1,0 +1,15 @@
+[Unit]
+Description=Ripardo Water Flow Python Service
+After=network.target
+
+[Service]
+User=pi
+Restart=always
+ExecStart=/home/pi/rwf/rwf.py
+EnvironmentFile=/home/pi/rwf.env
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=rwf
+
+[Install]
+WantedBy=multi-user.target
