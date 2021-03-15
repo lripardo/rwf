@@ -2,4 +2,4 @@ import time
 
 while True:
     print("TEST...")
-    time.sleep(5)
+    time.sleep(3600)
