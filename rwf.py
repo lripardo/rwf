@@ -1,10 +1,10 @@
-from gpiozero import LED
+from gpiozero import DigitalOutputDevice, DigitalInputDevice
 from time import sleep
 
-led = LED(17)
+pump = DigitalOutputDevice(17)
+sensor1 = DigitalInputDevice(27)
+sensor2 = DigitalInputDevice(22)
 
 while True:
-    led.on()
-    sleep(10)
-    led.off()
+    print("Sensor 1 = {0}, Sensor 2 = {1}\n", sensor1.value, sensor2.value)
     sleep(10)
