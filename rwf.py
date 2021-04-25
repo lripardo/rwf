@@ -30,7 +30,7 @@ def register_event(value):
         month = now.strftime("%m")
         day = now.strftime("%d")
         time = now.strftime("%H_%M_%S")
-        doc_ref = db.document(year).document(month).document(day).document(time)
+        doc_ref = db.collection(year).document(month).collection(day).document(time)
         doc_ref.set({
             u'timestamp': firestore.SERVER_TIMESTAMP,
             u'pump': value
