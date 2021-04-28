@@ -43,7 +43,7 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/json')
         self.end_headers()
 
-        message = '{"status": 200, "message": "Ok", "data": {"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
+        message = '{{"status": 200, "message": "Ok", "data": {{"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
         data = message.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
         self.wfile.write(bytes(data, "utf8"))
 
