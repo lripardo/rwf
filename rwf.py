@@ -92,8 +92,8 @@ class RWF:
 
 class RWFHttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        rwfInstance = RWF()
-        rwfInstance.read()
+        rwf_instance = RWF()
+        rwf_instance.read()
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -101,7 +101,7 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
 
         message = '{"status": 200, "message": "Ok", "data": {"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
         self.wfile.write(
-            bytes(message.format(rwfInstance.sensor1(), rwfInstance.sensor2(), rwfInstance.verification_delay()),
+            bytes(message.format(rwf_instance.sensor1(), rwf_instance.sensor2(), rwf_instance.verification_delay()),
                   "utf8"))
 
 
