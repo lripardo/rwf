@@ -1,14 +1,18 @@
+import threading
 from datetime import datetime
 from time import sleep
 
 import firebase_admin
 from firebase_admin import firestore
 from gpiozero import DigitalOutputDevice, DigitalInputDevice
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 VERIFICATION_DELAY_PUMP_ON = 10  # 10 seconds
 VERIFICATION_DELAY_PUMP_OFF = 600  # 10 minutes
 MAX_PUMP_ON_TIME = 600  # 10 minutes
 SLEEP_PUMP_TIME = 600  # 10 minutes
+
+rfw = None
 
 
 def print_constraint(constraint, message):
@@ -29,6 +33,19 @@ def set_firebase(value):
         })
     except Exception as e:
         print(e)
+
+
+class RWFHttpHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        rwf.read()
+
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+
+        message = '{"status": 200, "message": "Ok", "data": {"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
+        data = message.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
+        self.wfile.write(bytes(data, "utf8"))
 
 
 class RWF:
@@ -89,6 +106,9 @@ class RWF:
 
 
 if __name__ == "__main__":
+    server = HTTPServer(('0.0.0.0', 8000), RWFHttpHandler)
+    threading.Thread(target=server.serve_forever).start()
+
     rwf = RWF()
 
     # Point your GOOGLE_APPLICATION_CREDENTIALS env var to credentials json file
