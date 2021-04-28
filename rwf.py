@@ -37,14 +37,22 @@ def set_firebase(value):
 
 class RWFHttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        rwf.read()
+        response = '{{"status": {0}, "message": "{1}", "data": {2}}}'
+        status = 400
+        message = "error"
+        data = "null"
 
-        self.send_response(200)
+        if rwf:
+            rwf.read()
+            status = 200
+            message = "Ok"
+            d = '{{"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
+            data = d.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
+
+        self.send_response(status)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-
-        message = '{{"status": 200, "message": "Ok", "data": {{"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
-        data = message.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
+        data = response.format(status, message, data)
         self.wfile.write(bytes(data, "utf8"))
 
 
@@ -87,6 +95,12 @@ class RWF:
 
     def sensor2(self):
         return self._value2 == 1
+
+    def value1(self):
+        return self._value1
+
+    def value2(self):
+        return self._value2
 
     def elapsed_seconds_last_pump_off(self):
         if self._last_pump_off_time:
