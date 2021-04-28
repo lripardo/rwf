@@ -46,8 +46,8 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
             rwf.read()
             status = 200
             message = "Ok"
-            d = '{{"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
-            data = d.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
+            d = '{{"sensor1": {0}, "sensor2": {1}, "delay": {2}}}'
+            data = d.format(rwf.value1(), rwf.value2(), rwf.verification_delay())
 
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
