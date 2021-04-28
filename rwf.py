@@ -96,8 +96,8 @@ if __name__ == "__main__":
     db = firestore.client()
 
     while True:
-        rwf.print()
         rwf.read()
+        rwf.print()
 
         # Avoid pump on lock
         elapsed_seconds_last_pump_on = rwf.elapsed_seconds_last_pump_on()
