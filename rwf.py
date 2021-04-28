@@ -58,7 +58,7 @@ class RWF:
 
     def print(self):
         message = "Sensor(1)={0}, Sensor(2)={1}, Delay={2}\n"
-        print(message.format(self._sensor1, self._sensor2, self._verification_delay))
+        print(message.format(self._value1, self._value2, self._verification_delay))
 
     def read(self):
         self._value1 = self._sensor1.value
