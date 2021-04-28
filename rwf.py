@@ -1,9 +1,11 @@
+import threading
 from datetime import datetime
 from time import sleep
 
 import firebase_admin
 from firebase_admin import firestore
 from gpiozero import DigitalOutputDevice, DigitalInputDevice
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 VERIFICATION_DELAY_PUMP_ON = 10  # 10 seconds
 VERIFICATION_DELAY_PUMP_OFF = 600  # 10 minutes
@@ -84,8 +86,29 @@ class RWF:
     def sleep(self):
         sleep(self._verification_delay)
 
+    def verification_delay(self):
+        return self._verification_delay
+
+
+class RWFHttpHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        rwfInstance = RWF()
+        rwfInstance.read()
+
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+
+        message = '{"status": 200, "message": "Ok", "data": {"sensor1": "{0}", "sensor2": "{1}", "delay": {2}}}'
+        self.wfile.write(
+            bytes(message.format(rwfInstance.sensor1(), rwfInstance.sensor2(), rwfInstance.verification_delay()),
+                  "utf8"))
+
 
 if __name__ == "__main__":
+    server = ThreadingHTTPServer(('0.0.0.0', 8000), RWFHttpHandler)
+    threading.Thread(target=server.serve_forever).start()
+
     rwf = RWF()
 
     # Point your GOOGLE_APPLICATION_CREDENTIALS env var to credentials json file
@@ -93,6 +116,7 @@ if __name__ == "__main__":
     db = firestore.client()
 
     while True:
+        rwf.print()
         rwf.read()
 
         # Avoid pump on lock
