@@ -47,7 +47,7 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
             status = 200
             message = "Ok"
             d = '{{"sensor1": {0}, "sensor2": {1}, "delay": {2}}}'
-            data = d.format(rwf.value1(), rwf.value2(), rwf.verification_delay())
+            data = d.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
 
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
@@ -91,15 +91,9 @@ class RWF:
         return self._verification_delay == VERIFICATION_DELAY_PUMP_ON
 
     def sensor1(self):
-        return self._value1 == 1
-
-    def sensor2(self):
-        return self._value2 == 1
-
-    def value1(self):
         return self._value1
 
-    def value2(self):
+    def sensor2(self):
         return self._value2
 
     def elapsed_seconds_last_pump_off(self):
@@ -141,13 +135,13 @@ if __name__ == "__main__":
             quit(1)  # Exit application
 
         if not rwf.sensor1() and not rwf.sensor2() and not rwf.is_pump_on():
-            rwf.pump_on()
-        elif rwf.sensor1() and rwf.sensor2() and rwf.is_pump_on():
             # Obey the delay sleep pump
             elapsed_seconds_last_pump_off = rwf.elapsed_seconds_last_pump_off()
             if elapsed_seconds_last_pump_off and elapsed_seconds_last_pump_off <= SLEEP_PUMP_TIME:
                 print_constraint("Pump", "Delay sleep")
                 quit(1)  # Exit application
+            rwf.pump_on()
+        elif rwf.sensor1() and rwf.sensor2() and rwf.is_pump_on():
             rwf.pump_off()
         elif not rwf.sensor1() and rwf.sensor2():
             print_constraint("Sensor", "Sensor 1 == 0 and Sensor 2 == 1")
