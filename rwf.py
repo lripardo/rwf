@@ -63,7 +63,7 @@ class RWF:
         self._value2 = self._sensor2.value
 
     def is_pump_on(self):
-        return self._verification_delay == VERIFICATION_DELAY_PUMP_ON
+        return self._verification_delay == VERIFICATION_DELAY_PUMP_OFF
 
     def sensor1(self):
         return self._value1 == 1
