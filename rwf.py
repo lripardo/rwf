@@ -5,7 +5,7 @@ from time import sleep
 import firebase_admin
 from firebase_admin import firestore
 from gpiozero import DigitalOutputDevice, DigitalInputDevice
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 VERIFICATION_DELAY_PUMP_ON = 10  # 10 seconds
 VERIFICATION_DELAY_PUMP_OFF = 600  # 10 minutes
@@ -106,7 +106,7 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(('0.0.0.0', 8000), RWFHttpHandler)
+    server = HTTPServer(('0.0.0.0', 8000), RWFHttpHandler)
     threading.Thread(target=server.serve_forever).start()
 
     rwf = RWF()
