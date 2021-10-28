@@ -19,12 +19,13 @@ rfw = None
 
 
 def alert_email(message):
-    email = os.environ.get("RWF_EMAIL")
+    email_to = os.environ.get("RWF_TO_EMAIL")
+    email_from = os.environ.get("RWF_FROM_EMAIL")
     api_key = os.environ.get("SENDGRID_API_KEY")
-    if email and api_key:
+    if email_to and email_from and api_key:
         message = Mail(
-            from_email=email,
-            to_emails=email,
+            from_email=email_from,
+            to_emails=email_to,
             subject="RWF Alert",
             html_content="<strong>{0}</strong>".format(message))
         try:
