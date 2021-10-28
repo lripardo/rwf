@@ -9,7 +9,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 VERIFICATION_DELAY_PUMP_ON = 10  # 10 seconds
 VERIFICATION_DELAY_PUMP_OFF = 600  # 10 minutes
-MAX_PUMP_ON_TIME = 600  # 10 minutes
+MAX_PUMP_ON_TIME = 480  # 8 minutes
 SLEEP_PUMP_TIME = 600  # 10 minutes
 
 rfw = None
