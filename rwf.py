@@ -1,11 +1,14 @@
+import os
 import threading
 from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from time import sleep
 
 import firebase_admin
 from firebase_admin import firestore
 from gpiozero import DigitalOutputDevice, DigitalInputDevice
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 VERIFICATION_DELAY_PUMP_ON = 10  # 10 seconds
 VERIFICATION_DELAY_PUMP_OFF = 600  # 10 minutes
@@ -15,8 +18,27 @@ SLEEP_PUMP_TIME = 600  # 10 minutes
 rfw = None
 
 
+def alert_email(message):
+    email = os.environ.get("RWF_EMAIL")
+    api_key = os.environ.get("SENDGRID_API_KEY")
+    if email and api_key:
+        message = Mail(
+            from_email=email,
+            to_emails=email,
+            subject="RWF Alert",
+            html_content="<strong>{0}</strong>".format(message))
+        try:
+            sg = SendGridAPIClient()
+            response = sg.send(message)
+            print("Email alert sent with status code: {0}".format(response.status_code))
+        except Exception as e:
+            print("Email alert error: {0}".format(e))
+
+
 def print_constraint(constraint, message):
-    print("{0} constraint => {1}. Exiting...".format(constraint, message))
+    m = "{0} constraint => {1}. Exiting...".format(constraint, message)
+    print(m)
+    return m
 
 
 def set_firebase(value):
@@ -50,7 +72,7 @@ class RWFHttpHandler(BaseHTTPRequestHandler):
             data = d.format(rwf.sensor1(), rwf.sensor2(), rwf.verification_delay())
 
         self.send_response(status)
-        self.send_header('Content-type', 'application/json')
+        self.send_header("Content-type", "application/json")
         self.end_headers()
         data = response.format(status, message, data)
         self.wfile.write(bytes(data, "utf8"))
@@ -114,7 +136,7 @@ class RWF:
 
 
 if __name__ == "__main__":
-    server = HTTPServer(('0.0.0.0', 8000), RWFHttpHandler)
+    server = HTTPServer(("0.0.0.0", 8000), RWFHttpHandler)
     threading.Thread(target=server.serve_forever).start()
 
     rwf = RWF()
@@ -130,7 +152,7 @@ if __name__ == "__main__":
         # Avoid pump on lock
         elapsed_seconds_last_pump_on = rwf.elapsed_seconds_last_pump_on()
         if elapsed_seconds_last_pump_on and rwf.is_pump_on() and elapsed_seconds_last_pump_on > MAX_PUMP_ON_TIME:
-            print_constraint("Pump", "Locked")
+            alert_email(print_constraint("Pump", "Locked"))
             rwf.pump_off()
             quit(1)  # Exit application
 
@@ -138,13 +160,13 @@ if __name__ == "__main__":
             # Obey the delay sleep pump
             elapsed_seconds_last_pump_off = rwf.elapsed_seconds_last_pump_off()
             if elapsed_seconds_last_pump_off and elapsed_seconds_last_pump_off <= SLEEP_PUMP_TIME:
-                print_constraint("Pump", "Delay sleep")
+                alert_email(print_constraint("Pump", "Delay sleep"))
                 quit(1)  # Exit application
             rwf.pump_on()
         elif rwf.sensor1() and rwf.sensor2() and rwf.is_pump_on():
             rwf.pump_off()
         elif not rwf.sensor1() and rwf.sensor2():
-            print_constraint("Sensor", "Sensor 1 == 0 and Sensor 2 == 1")
+            alert_email(print_constraint("Sensor", "Sensor 1 == 0 and Sensor 2 == 1"))
             quit(1)  # Exit application
 
         rwf.sleep()

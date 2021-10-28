@@ -4,7 +4,6 @@ After=network.target
 
 [Service]
 User=pi
-Restart=always
 ExecStart=/home/pi/rwf/start_service.sh
 EnvironmentFile=/home/pi/rwf.env
 StandardOutput=syslog
