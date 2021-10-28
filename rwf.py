@@ -36,7 +36,7 @@ def alert_email(message):
 
 
 def print_constraint(constraint, message):
-    m = "{0} constraint => {1}. Exiting...".format(constraint, message)
+    m = "{0} constraint => {1}. Server will be shutdown...".format(constraint, message)
     print(m)
     return m
 
@@ -136,6 +136,7 @@ class RWF:
 
 
 if __name__ == "__main__":
+    alert_email("Server started...")
     server = HTTPServer(("0.0.0.0", 8000), RWFHttpHandler)
     threading.Thread(target=server.serve_forever).start()
 
