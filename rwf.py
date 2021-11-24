@@ -3,6 +3,7 @@ import threading
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from time import sleep
+from sys import exit
 
 import firebase_admin
 from firebase_admin import firestore
@@ -156,19 +157,19 @@ if __name__ == "__main__":
         if elapsed_seconds_last_pump_on and rwf.is_pump_on() and elapsed_seconds_last_pump_on > MAX_PUMP_ON_TIME:
             alert_email(print_constraint("Pump", "Locked"))
             rwf.pump_off()
-            quit(1)  # Exit application
+            exit(1)  # Exit application
 
         if not rwf.sensor1() and not rwf.sensor2() and not rwf.is_pump_on():
             # Obey the delay sleep pump
             elapsed_seconds_last_pump_off = rwf.elapsed_seconds_last_pump_off()
             if elapsed_seconds_last_pump_off and elapsed_seconds_last_pump_off <= SLEEP_PUMP_TIME:
                 alert_email(print_constraint("Pump", "Delay sleep"))
-                quit(1)  # Exit application
+                exit(1)  # Exit application
             rwf.pump_on()
         elif rwf.sensor1() and rwf.sensor2() and rwf.is_pump_on():
             rwf.pump_off()
         elif not rwf.sensor1() and rwf.sensor2():
             alert_email(print_constraint("Sensor", "Sensor 1 == 0 and Sensor 2 == 1"))
-            quit(1)  # Exit application
+            exit(1)  # Exit application
 
         rwf.sleep()
