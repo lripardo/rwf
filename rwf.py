@@ -164,12 +164,14 @@ if __name__ == "__main__":
             elapsed_seconds_last_pump_off = rwf.elapsed_seconds_last_pump_off()
             if elapsed_seconds_last_pump_off and elapsed_seconds_last_pump_off <= SLEEP_PUMP_TIME:
                 alert_email(print_constraint("Pump", "Delay sleep"))
+                rwf.pump_off()
                 exit(1)  # Exit application
             rwf.pump_on()
         elif rwf.sensor1() and rwf.sensor2() and rwf.is_pump_on():
             rwf.pump_off()
         elif not rwf.sensor1() and rwf.sensor2():
             alert_email(print_constraint("Sensor", "Sensor 1 == 0 and Sensor 2 == 1"))
+            rwf.pump_off()
             exit(1)  # Exit application
 
         rwf.sleep()
